@@ -1,0 +1,27 @@
+{
+  "chk":                    ["0_clone"],
+  "0_clone":                ["chk.sh 0_clone"                , "1_build"],
+  "1_build":                ["chk.sh 1_build"                , "2_exec"],
+  "2_exec":                 ["chk.sh 2_exec"                 , "4_clone_mona"],
+
+  "3_clone_mona_quickpost": ["chk.sh 3_clone_mona_quickpost" , "4_quickpost"],
+  "4_quickpost":            ["chk.sh 4_quickpost"            , "5_quickpost_report"],
+  "5_quickpost_report":     ["chk.sh 5_quickpost_report"],
+
+  "3_clone_v2_post":        ["chk.sh 3_clone_v2_post"        , "4_post"],
+  "4_post":                 ["chk.sh 4_post"                 , "5_clone_mona_post"],
+  "5_clone_mona_post":      ["chk.sh 5_clone_mona_post"      , "6_pre_v2_post_report"],
+  "6_pre_v2_post_report":   ["chk.sh 6_pre_v2_post_report"],
+
+  "3_clone_mona":           ["chk.sh 3_clone_mona"           , "4_report"],
+  "4_report":               ["chk.sh 4_report"               , "5_airflow_report"],
+  "5_airflow_report":       ["chk.sh 5_airflow_report"       , "5_extib_report"],
+  "5_extib_report":         ["chk.sh 5_extib_report"         , "5_quality_report"],
+  "5_quality_report":       ["chk.sh 5_quality_report"       , "5_starttib_report"],
+  "5_starttib_report":      ["chk.sh 6_starttib_report"      , "6_check_stripes"],
+  "6_check_stripes":        ["chk.sh 6_check_stripes"],
+
+  "v2":                     ["0_clone_v2"],
+  "0_clone_v2":             ["chk.sh 0_clone_v2"             , "1_build_v2"],
+  "1_build_v2":             ["chk.sh 1_build_v2"]
+}

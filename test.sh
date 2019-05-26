@@ -3,12 +3,16 @@
 set -e
 
 PORT=8001
-export BASE_DIR="C:/cygwin64/home/gpryor/wm.devops/out/exec"
+BASE_DIR="$(dirname $(readlink -f $0))/test"
 
-coffee index.coffee &
+BASE_DIR=$(cygpath -wa $BASE_DIR) coffee index.coffee &
 sleep 1s
 
-# cmp <(curl -s http://localhost:$PORT/jobs) $CONFIG_JSON
-# [ $(curl -sIw '%{http_code}' http://localhost:$PORT/log/* | tail -n 1) = "200" ]
+# retrieves full file
+cmp <(curl -s http://localhost:8001/log/0_clone.0001) $BASE_DIR/log/0_clone.0001
 
-curl -H "Range: line=-1" -s http://localhost:8001/log/0_clone.0004 > /dev/null
+# retrieves glob
+curl -s http://localhost:$PORT/log/0_*01 | grep -o '0_clone.0001' > /dev/null
+
+# retrieves directory
+[ $(curl -s http://localhost:$PORT/log/* | grep -o '0_clone' | wc -l) = "3" ]
