@@ -10,8 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "async": "^3.0.0",
+    "async": "^3.0.1",
     "fast-glob": "^2.2.7",
-    "mime": "^2.4.3"
+    "mime": "^2.4.3",
+    "parse-http-range-header": "^1.0.1",
+    "unix-head-tail": "^1.0.2",
+    "unix-wc-l": "^1.0.2"
   }
 }

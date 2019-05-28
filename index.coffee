@@ -7,7 +7,9 @@ url = require 'url'
 mime = require 'mime'
 async = require 'async'
 fg = require 'fast-glob'
-parseRangeHeader = () ->
+parseRangeHeader = require 'parse-http-range-header'
+wcL = require 'unix-wc-l'
+headTail = require 'unix-head-tail'
 _500 = (res, msg) -> res.writeHead 500; res.end (msg or '')
 _404 = (res, msg) -> res.writeHead 404; res.end (msg or '')
 M = (s) -> console.log s; s
@@ -49,14 +51,15 @@ rangeToUnits = (range) ->
   if match then match[1].toLowerCase()
 
 
-sendFileLines = (res, path, range) ->
+sendFileLines = (res, path, ranges) ->
 
-  wcL path, (nlines) ->
+  sendRanges = (nlines) ->
 
-    lineRangeToBuffer = ([firstLineNo, lastLineNo], cb) ->
+    lineRangeToBuffer = (range, cb) ->
+      [firstLineNo, lastLineNo] = range
       headTail path, firstLineNo, lastLineNo, (err, data) ->
         return cb err if err
-        cb false, data
+        cb undefined, data
 
     async.map ranges, lineRangeToBuffer, (err, buffers) ->
       return _500 res if err
@@ -65,6 +68,10 @@ sendFileLines = (res, path, range) ->
       res.writeHead 200
       res.end payload
 
+  wcL(path).then(sendRanges)
+
+
+
 dirToGlob = (dir) ->
   if dir[dir.length - 1] isnt '/' then dir + '/*' else dir + '*'
 
@@ -72,14 +79,14 @@ server = http.createServer (req, res) ->
   return _404 res if req.method isnt 'GET'
 
   absPath = "#{BASE_DIR}#{(url.parse req.url).pathname.trim()}"
-  range = parseRangeHeader req.headers.range
+  range = if req.headers.range then parseRangeHeader req.headers.range
 
   fs.stat absPath, (err, stat) ->
     switch
       when not err and stat.isFile()
         if range
           return _404 res if range.unit isnt 'lines'
-          sendFileLines res, absPath, range
+          sendFileLines res, absPath, range.ranges
         else
           sendFile res, absPath
       when not err and stat.isDirectory()
