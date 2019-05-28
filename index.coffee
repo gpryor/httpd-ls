@@ -45,32 +45,34 @@ globToJson = (glob, cwd, cb) ->
 
   fg(glob, stats: true).then(entriesToJson) # .catch () -> cb true
 
-
 rangeToUnits = (range) ->
   match = range.match /^[ ]*([^= ]+)[ ]*=/
   if match then match[1].toLowerCase()
 
-
 sendFileLines = (res, path, ranges) ->
+
+  lineRangeToBuffer = (range, cb) ->
+    [firstLineNo, lastLineNo] = range
+    headTail path, firstLineNo, lastLineNo, (err, data) ->
+      return cb err if err
+      cb undefined, data
 
   sendRanges = (nlines) ->
 
-    lineRangeToBuffer = (range, cb) ->
-      [firstLineNo, lastLineNo] = range
-      headTail path, firstLineNo, lastLineNo, (err, data) ->
-        return cb err if err
-        cb undefined, data
+    interpretRanges = (range) ->
+      handleNeg = (v) -> if v < 0 then nlines + v + 1 else v
+      range.map handleNeg
+    ranges = ranges.map interpretRanges
 
     async.map ranges, lineRangeToBuffer, (err, buffers) ->
       return _500 res if err
       payload = Buffer.concat buffers
+      M "  << send #{path} (#{payload.length} bytes) ranges #{ranges.toString()}"
       res.setHeader 'Content-Type', mime.getType path
       res.writeHead 200
       res.end payload
 
   wcL(path).then(sendRanges)
-
-
 
 dirToGlob = (dir) ->
   if dir[dir.length - 1] isnt '/' then dir + '/*' else dir + '*'
