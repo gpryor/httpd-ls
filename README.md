@@ -1,6 +1,6 @@
 # httpd-ls
 
-Server listing of directories and files with HTTP range support, e.g.
+Serve listing of directories and files with HTTP range support, e.g.
 
 ```
 // serve
