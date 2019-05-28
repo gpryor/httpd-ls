@@ -1,4 +1,4 @@
-#!/usr/bin/coffee
+#!/usr/bin/env coffee
 # -*- compile-command: "./test.sh"; -*-
 http = require 'http'
 fs = require 'fs'
