@@ -13,7 +13,7 @@ if [[ "$(uname)" =~ CYGWIN_.* ]] ; then
 fi
 
 
-coffee index.coffee &   # BASE_DIR utilized here
+./node_modules/.bin/coffee index.coffee &   # BASE_DIR utilized here
 
 
 COFFEE_PID=$!
