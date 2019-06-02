@@ -26,9 +26,9 @@ curl -H "range: lines=-1" localhost:8001/test/log/0_clone.0000
 // -> 010
 
 // retrieve middle of file
-curl -H "range: lines=3-5" <host>/<filename>
+curl -H "range: lines=3-5" localhost:8001/test/config.json
 // ->
-//  "0_clone":                ["chk.sh 0_clone"                , "1_build"],
-//  "1_build":                ["chk.sh 1_build"                , "2_exec"],
-//  "2_exec":                 ["chk.sh 2_exec"                 , "4_clone_mona"],
+//  "0_clone":          ["chk.sh 0_clone"          , "1_build"],
+//  "1_build":          ["chk.sh 1_build"          , "2_exec"],
+//  "2_exec":           ["chk.sh 2_exec"           , "4_clone_mona"],
 ```
