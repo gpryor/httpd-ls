@@ -1,6 +1,6 @@
 {
   "name": "httpd-ls",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "index.coffee",
   "bin": {
@@ -8,6 +8,10 @@
   },
   "scripts": {
     "test": "./test.sh"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/gpryor/http-ls.git"
   },
   "keywords": [],
   "author": "",
