@@ -1,15 +1,32 @@
 #!/bin/bash
 # -*- compile-command: "./test.sh"; -*-
-set -e
+set -ex
+. $(dirname $(readlink -f $0))/util.sh
 
 PORT=8001
-BASE_DIR="$(dirname $(readlink -f $0))/test"
+TEST_DIR="$(dirname $(readlink -f $0))/test"
+if [ "$(uname)" = "Linux" ] ; then
+  export BASE_DIR=$TEST_DIR
+fi
+if [[ "$(uname)" =~ CYGWIN_.* ]] ; then
+  export BASE_DIR=$(cygpath -wa $TEST_DIR)
+fi
 
-BASE_DIR=$(cygpath -wa $BASE_DIR) coffee index.coffee &
-sleep 1s
+
+coffee index.coffee &   # BASE_DIR utilized here
+
+
+COFFEE_PID=$!
+function cleanup {
+  kill_local_pid $COFFEE_PID
+}
+trap cleanup SIGINT SIGTERM EXIT
+
+wait_for_server 8001
+
 
 # retrieves full file
-cmp <(curl -s http://localhost:8001/log/0_clone.0001) $BASE_DIR/log/0_clone.0001
+cmp <(curl -s http://localhost:8001/log/0_clone.0001) $TEST_DIR/log/0_clone.0001
 
 # retrieves glob
 curl -s http://localhost:$PORT/log/0_*01 | grep -o '0_clone.0001' > /dev/null
@@ -19,12 +36,12 @@ curl -s http://localhost:$PORT/log/0_*01 | grep -o '0_clone.0001' > /dev/null
 
 # retrieves part of file
 cmp <(curl -H "range: lines=3-7" -s http://localhost:8001/log/0_clone.0001) \
-    <(head -n 7 $BASE_DIR/log/0_clone.0001 | tail -n +3)
+    <(head -n 7 $TEST_DIR/log/0_clone.0001 | tail -n +3)
 
 # retrieves end of file
 cmp <(curl -H "range: lines=-2" -s http://localhost:8001/log/0_clone.0001) \
-    <(head -n 6 $BASE_DIR/log/0_clone.0001 | tail -n +5)
+    <(head -n 6 $TEST_DIR/log/0_clone.0001 | tail -n +5)
 
 # retrieves starting at line
 cmp <(curl -H "range: lines=3-" -s http://localhost:8001/log/0_clone.0001) \
-    <(tail -n +3 $BASE_DIR/log/0_clone.0001)
+    <(tail -n +3 $TEST_DIR/log/0_clone.0001)
